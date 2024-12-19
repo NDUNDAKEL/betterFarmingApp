@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="text-center mb-4">Edit Plant Information</h2>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white text-center">
+          <h4>Edit Plant</h4>
+        </div>
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Plant Name -->
+            <div class="mb-3">
+              <label for="plant_name" class="form-label">Plant Name</label>
+              <input type="text" class="form-control" id="plant_name" name="plant_name" value="{{ plant.name }}" required>
+            </div>
+
+            <!-- Region -->
+            <div class="mb-3">
+              <label for="region" class="form-label">Region</label>
+              <select class="form-select" id="region" name="region" required>
+                <option value="" disabled>Select Region</option>
+                <option value="arid" {% if plant.region == 'arid' %}selected{% endif %}>Arid</option>
+                <option value="semi_arid" {% if plant.region == 'semi_arid' %}selected{% endif %}>Semi-Arid</option>
+                <option value="tropical" {% if plant.region == 'tropical' %}selected{% endif %}>Tropical</option>
+                <option value="temperate" {% if plant.region == 'temperate' %}selected{% endif %}>Temperate</option>
+              </select>
+            </div>
+
+            <!-- Rainfall -->
+            <div class="mb-3">
+              <label for="rainfall" class="form-label">Rainfall (mm/year)</label>
+              <select class="form-select" id="rainfall" name="rainfall" required>
+                <option value="" disabled>Select Rainfall</option>
+                <option value="0-50" {% if plant.rainfall == '0-50' %}selected{% endif %}>Arid (0-50 mm)</option>
+                <option value="51-150" {% if plant.rainfall == '51-150' %}selected{% endif %}>Semi-Arid (51-150 mm)</option>
+                <option value="151-500" {% if plant.rainfall == '151-500' %}selected{% endif %}>Tropical (151-500 mm)</option>
+                <option value="501-1200" {% if plant.rainfall == '501-1200' %}selected{% endif %}>Temperate (501-1200 mm)</option>
+              </select>
+            </div>
+
+            <!-- Plant Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Plant Description</label>
+              <textarea class="form-control" id="description" name="description" rows="4" required>{{ plant.description }}</textarea>
+            </div>
+
+            <!-- Current Images -->
+            <div class="mb-3">
+              <label for="current_images" class="form-label">Current Images</label>
+              <div class="d-flex flex-wrap">
+                {% for image in plant.images.all %}
+                  <div class="me-2 mb-2 position-relative">
+                    <img src="{{ image.image.url }}" alt="Plant Image" style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ccc;">
+                    <label>
+                      <input type="checkbox" name="delete_images" value="{{ image.id }}"> Remove
+                    </label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Upload New Images -->
+            <div class="mb-3">
+              <label for="plant_images" class="form-label">Upload New Images</label>
+              <input type="file" class="form-control" id="plant_images" name="plant_images" accept="image/*" multiple>
+              <small class="text-muted">Leave empty to keep existing images.</small>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary w-100">Update Plant</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+
+
+<style>
+  body {
+    background-color: #f8f9fa;
+  }
+
+  .card {
+    border-radius: 10px;
+  }
+
+  .card-header {
+    font-weight: bold;
+  }
+
+  .form-control, .form-select {
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .btn {
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+  }
+
+  .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+  }
+</style>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,268 @@
+{%load static%}
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>{% block title %}AgriCulture{% endblock %}</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="{% static 'img/favicon.png' %}" rel="icon">
+  <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&family=Marcellus:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link href="{% static 'css/main.css' %}" rel="stylesheet">
+</head>
+    <!-- Navbar -->
+    <!-- Navbar -->
+    <header id="header" class="header d-flex align-items-center position-relative">
+      <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+          <!-- Logo Section -->
+          <a href="{% url 'home' %}" class="logo d-flex align-items-center">
+              <img src="{% static 'img/logo.png' %}" alt="AgriCulture">
+          </a>
+  
+          <!-- Navigation Menu -->
+          <nav id="navmenu" class="navmenu">
+              <ul>
+                  <li><a href="{% url 'home' %}">Home</a></li>
+                  <li><a href="{% url 'about' %}">About Us</a></li>
+                  <li><a href="{% url 'services' %}">Our Services</a></li>
+                  {%if user.is_authenticated%}
+                  {%if user.username == 'admin' %}
+                  <select onchange="location = this.value;" style="padding: 0.5rem; font-size: 1rem; border-radius: 4px;">
+                    <option value="">Select an Action</option>
+                    <option value="{% url 'addPlants' %}">Add Plants</option>
+                    <option value="{% url 'plant_list' %}">View Plants</option>
+                </select>
+                  {%endif%} {%endif%}
+                  <li><a href="{% url 'contact' %}">Contact</a></li>
+              </ul>
+              <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+          </nav>
+  
+          <!-- User Info Section -->
+          <div class="user-info d-flex align-items-center" >
+              
+              {% if user.is_authenticated %}
+                  <div class="d-flex align-items-center">
+                      <a href="{% url 'logout' %}" style='color:red;margin-right:8px;'>Logout</a>
+                      {% if user.profile_picture %}
+                          <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-pic me-2">
+                      {% endif %}
+                      <div>
+                          
+                          <p class="m-0">Welcome, {{ user.username }}</p>
+                          <small class="text-muted">{{ user.email }}</small>
+                      </div>
+                      <!-- Logout Button -->
+                     
+                  </div>
+              {% else %}
+                  <p class="m-0"><a href="{% url 'loginPage' %}" class="btn btn-sm btn-primary">Login</a></p>
+              {% endif %}
+          </div>
+      </div>
+  </header>
+  
+  <!-- Add the following CSS to style the profile picture -->
+  <style>
+      .profile-pic {
+          width: 40px; /* Adjust width as needed */
+          height: 40px; /* Adjust height as needed */
+          object-fit: cover; /* Ensures the image is cropped to fit */
+          border-radius: 50%; /* Makes the image circular */
+      }
+  </style>
+  {% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+<div class="container py-5">
+  {%if user.is_authenticated%}
+  {%if user.username != 'admin' %}
+  <p style="align-text:center;">According to your Region, we have found these plants suitable for you to grow ☺️</p>
+  {%endif%}  {%endif%}
+  <h2 class="text-center mb-4" style="font-family: 'Poppins', sans-serif; color: #4CAF50;">🌱 Plants List</h2>
+{%if user.is_authenticated and user.username == 'admin'%}
+
+  <div class="row">
+    {% for plant in plants %}
+    <div class="col-md-4 d-flex">
+      <div class="card mb-4 shadow-sm w-100" style="border-radius: 12px; overflow: hidden;">
+        <!-- Plant Carousel -->
+        <div id="carousel{{ forloop.counter }}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner" style="max-height: 200px;">
+            {% for image in plant.images.all %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ plant.name }}" style="object-fit: cover; max-height: 200px;">
+            </div>
+            {% empty %}
+            <div class="d-flex justify-content-center align-items-center" style="height: 200px; background-color: #f8f9fa;">
+              <p class="text-muted">No images available</p>
+            </div>
+            {% endfor %}
+          </div>
+          {% if plant.images.all|length > 1 %}
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ forloop.counter }}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ forloop.counter }}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+          {% endif %}
+        </div>
+
+        <!-- Plant Details -->
+        <div class="card-body d-flex flex-column" style="min-height: 200px;">
+          <h5 class="card-title text-center" style="color: #2C3E50; font-weight: 600;">{{ plant.name }}</h5>
+          <p class="card-text text-center text-muted" style="font-style: italic;">{{ plant.description }}</p>
+          <p class="text-muted"><strong>Region:</strong> {{ plant.region }}</p>
+          <p class="text-muted"><strong>Rainfall:</strong> {{ plant.rainfall }}</p>
+
+          <!-- Footer Actions (Optional) -->
+          <div class="mt-auto text-center">
+            <a href="#" class="btn btn-success btn-sm" style="border-radius: 20px;">Learn More</a>
+            {%if user.is_authenticated %}
+            {%if user.username == 'admin' %}
+            <a href="{% url 'edit_plant' plant_id=plant.id %}" class="btn btn-primary btn-sm">Edit</a>
+
+
+            <a href="{% url 'delete_plant' plant_id=plant.id %}" 
+            class="btn btn-sm" 
+            style="border-radius: 20px; background-color: red; color: white;"
+            onclick="return confirm('Are you sure you want to delete this plant?');">
+            Delete Plant
+         </a>
+         
+            {%endif%}{%endif%}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-center">No plants found.</p>
+    {% endfor %}
+  </div>
+  {%endif%}
+
+ 
+  <div class="row">
+    {%if user_plants%}
+    {% for plant in user_plants %}
+    <div class="col-md-4 d-flex">
+      <div class="card mb-4 shadow-sm w-100" style="border-radius: 12px; overflow: hidden;">
+        <!-- Plant Carousel -->
+        <div id="carousel{{ forloop.counter }}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner" style="max-height: 200px;">
+            {% for image in plant.images.all %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ plant.name }}" style="object-fit: cover; max-height: 200px;">
+            </div>
+            {% empty %}
+            <div class="d-flex justify-content-center align-items-center" style="height: 200px; background-color: #f8f9fa;">
+              <p class="text-muted">No images available</p>
+            </div>
+            {% endfor %}
+          </div>
+          {% if plant.images.all|length > 1 %}
+          <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ forloop.counter }}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ forloop.counter }}" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+          {% endif %}
+        </div>
+
+        <!-- Plant Details -->
+        <div class="card-body d-flex flex-column" style="min-height: 200px;">
+          <h5 class="card-title text-center" style="color: #2C3E50; font-weight: 600;">{{ plant.name }}</h5>
+          <p class="card-text text-center text-muted" style="font-style: italic;">{{ plant.description }}</p>
+          <p class="text-muted"><strong>Region:</strong> {{ plant.region }}</p>
+          <p class="text-muted"><strong>Rainfall:</strong> {{ plant.rainfall }}</p>
+
+          <!-- Footer Actions (Optional) -->
+          <div class="mt-auto text-center">
+            <a href="#" class="btn btn-success btn-sm" style="border-radius: 20px;">Learn More</a>
+            {%if user.is_authenticated %}
+            {%if user.username == 'admin' %}
+            <a href="{% url 'edit_plant' plant_id=plant.id %}" class="btn btn-primary btn-sm">Edit</a>
+
+
+            <a href="{% url 'delete_plant' plant_id=plant.id %}" 
+            class="btn btn-sm" 
+            style="border-radius: 20px; background-color: red; color: white;"
+            onclick="return confirm('Are you sure you want to delete this plant?');">
+            Delete Plant
+         </a>
+         
+            {%endif%}{%endif%}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-center">No plants found.</p>
+    {% endfor %}
+    {%endif%}
+  </div>
+
+
+  
+</div>
+<footer id="footer" class="footer dark-background">
+  <div class="footer-top">
+      <div class="container">
+          <div class="row gy-4">
+              <div class="col-lg-4 col-md-6 footer-about">
+                  <a href="{% url 'home' %}" class="logo d-flex align-items-center">
+                      <span class="sitename">AgriCulture</span>
+                  </a>
+                  <div class="footer-contact pt-3">
+                      <p>A108 Adam Street</p>
+                      <p>New York, NY 535022</p>
+                      <p class="mt-3"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
+                      <p><strong>Email:</strong> <span>info@example.com</span></p>
+                  </div>
+              </div>
+              <!-- Additional footer sections -->
+          </div>
+      </div>
+  </div>
+  <div class="copyright text-center">
+      <div class="container d-flex flex-column flex-lg-row justify-content-center justify-content-lg-between align-items-center">
+          <div class="d-flex flex-column align-items-center align-items-lg-start">
+              <div>© Copyright <strong><span>MyWebsite</span></strong>. All Rights Reserved</div>
+              <div class="credits">
+                  Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+              </div>
+          </div>
+          <div class="social-links order-first order-lg-last mb-3 mb-lg-0">
+              <a href=""><i class="bi bi-twitter"></i></a>
+              <a href=""><i class="bi bi-facebook"></i></a>
+              <a href=""><i class="bi bi-instagram"></i></a>
+              <a href=""><i class="bi bi-linkedin"></i></a>
+          </div>
+      </div>
+  </div>
+</footer>

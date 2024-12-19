@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container py-5">
+  <h2 class="text-center mb-4" style='color:red'>Add Plant Information</h2>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white text-center">
+          <h4>Add a New Plant</h4>
+        </div>
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Plant Name -->
+            <div class="mb-3">
+              <label for="plant_name" class="form-label">Plant Name</label>
+              <input type="text" class="form-control" id="plant_name" name="plant_name" placeholder="Enter plant name" required>
+            </div>
+
+            <!-- Region -->
+            <div class="mb-3">
+              <label for="region" class="form-label">Region</label>
+              <select class="form-select" id="region" name="region" required>
+                <option value="" disabled selected>Select Region</option>
+                <option value="arid">Arid</option>
+                <option value="semi_arid">Semi-Arid</option>
+                <option value="tropical">Tropical</option>
+                <option value="temperate">Temperate</option>
+              </select>
+            </div>
+
+            <!-- Rainfall -->
+            <div class="mb-3">
+              <label for="rainfall" class="form-label">Rainfall (mm/year)</label>
+              <select class="form-select" id="rainfall" name="rainfall" required>
+                <option value="" disabled selected>Select Rainfall</option>
+                <!-- Options will be dynamically updated -->
+              </select>
+            </div>
+
+            <!-- Plant Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Plant Description</label>
+              <textarea class="form-control" id="description" name="description" rows="4" placeholder="Write a brief description of the plant" required></textarea>
+            </div>
+
+            <!-- Upload Images -->
+            <div class="mb-3">
+              <label for="plant_images" class="form-label">Upload Plant Images</label>
+              <input type="file" class="form-control" id="plant_images" name="plant_images" accept="image/*" multiple required>
+              <small class="text-muted">You can select multiple images.</small>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-success w-100">Add Plant</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Options for each region
+  const rainfallOptions = {
+    arid: [
+    { value: "0-50", label: "Arid (0-50 mm)" },
+    { value: "51-150", label: "Arid (51-150 mm)" },
+    { value: "151-250", label: "Arid (151-250 mm)" }
+  ],
+  semi_arid: [
+    { value: "251-400", label: "Semi-Arid (251-400 mm)" },
+    { value: "401-500", label: "Semi-Arid (401-500 mm)" }
+  ],
+  tropical: [
+    { value: "1000-1500", label: "Tropical (1000-1500 mm)" },
+    { value: "1501-2500", label: "Tropical (1501-2500 mm)" },
+    { value: "2501-5000", label: "Tropical (2501-5000 mm)" }
+  ],
+  temperate: [
+    { value: "500-800", label: "Temperate (500-800 mm)" },
+    { value: "801-1200", label: "Temperate (801-1200 mm)" },
+    { value: "1201-1500", label: "Temperate (1201-1500 mm)" }
+  ]
+  };
+
+  // Function to update rainfall options based on selected region
+  function updateRainfallOptions(region) {
+    const rainfallSelect = document.getElementById('rainfall');
+    rainfallSelect.innerHTML = '<option value="" disabled selected>Select Rainfall</option>'; // Clear previous options
+
+    if (rainfallOptions[region]) {
+      rainfallOptions[region].forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.label;
+        rainfallSelect.appendChild(optionElement);
+      });
+    }
+  }
+
+  // Add event listener to region select
+  document.getElementById('region').addEventListener('change', function() {
+    updateRainfallOptions(this.value);
+  });
+</script>
+
+<style>
+  body {
+    background-color: #f8f9fa;
+  }
+
+  .card {
+    border-radius: 10px;
+  }
+
+  .card-header {
+    font-weight: bold;
+  }
+
+  .form-control, .form-select {
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .btn {
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+  }
+
+  .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+  }
+</style>
+{% endblock %}

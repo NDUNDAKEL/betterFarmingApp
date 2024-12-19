@@ -1,0 +1,259 @@
+
+{%extends 'base.html'%}
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Index - AgriCulture Bootstrap Template</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="{% static 'img/favicon.png'%}" rel="icon">
+  <link href="{% static 'img/apple-touch-icon.png'%}" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Marcellus:wght@400&display=swap" rel="stylesheet">
+<!-- Icons -->
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href=" {% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/aos/aos.css'%}" rel="stylesheet">
+  <link href="{% static 'vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/glightbox/css/glightbox.min.css'%} " rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{% static 'css/main.css' %}" rel="stylesheet">
+
+  <!-- =======================================================
+  * Template Name: AgriCulture
+  * Template URL: https://bootstrapmade.com/agriculture-bootstrap-website-template/
+  * Updated: Aug 07 2024 with Bootstrap v5.3.3
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body class="services-page">
+
+
+
+  <main class="main">
+
+    {%block content%}
+        
+      
+
+    <!-- Testimonials Section -->
+     {%if user.is_authenticated%}
+    <section class="testimonials-12 testimonials section" id="testimonials">
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>TESTIMONIALS</h2>
+        <p>Reviews from our Customers</p>
+     </div><!-- End Section Title -->
+     <div class="testimonial-wrap">
+     
+
+      <div class="container">
+          <div class="row">
+              {% if user.is_authenticated and reviews %}
+              {% for review in reviews %}
+              <div class="col-md-6 mb-4 mb-md-4">
+                  <div class="testimonial position-relative">
+                      <!-- Profile Image -->
+                      {% if not review.profile_image %}
+                          <img src="{% static 'img/noProfile.png' %}" alt="No author profile">
+                      {% else %}
+                          <img src="{{ review.profile_image.url }}" alt="Author Profile">
+                      {% endif %}
+                      
+                      <!-- Date -->
+                      <p>{{ review.date_sent }}</p>
+                      
+                      <!-- Review Content -->
+                      <blockquote>
+                          <p>{{ review.content }}</p>
+                      </blockquote>
+                      
+                      <!-- Reviewer -->
+                      <p class="client-name">{{ review.reviewer }}</p>
+  
+                      <!-- Three Dots Menu (Positioned to the right) -->
+                      <div class="dropdown position-absolute" style="top: 10px; right: 10px;">
+                        {%if user.is_authenticated and user.id != review.reviewerid%}
+                        <button 
+                            class="btn btn-link"
+                            type="button" 
+                            id="flagButton{{ review.id }}" 
+                            title="Flag Comment"
+                            data-bs-toggle="tooltip">
+                            <i class="fas fa-flag"></i> <!-- Flag icon -->
+                        </button>
+                        {%endif%}
+{%if user.is_authenticated and user.id == review.reviewerid%}
+                          <button 
+                              class="btn btn-link dropdown-toggle" 
+                              type="button" 
+                              id="dropdownMenuButton{{ review.id }}" 
+                              data-bs-toggle="dropdown" 
+                              aria-expanded="false">
+                              <i class="fas fa-ellipsis-v"></i> <!-- Correct vertical ellipsis icon -->
+                          </button>
+                       
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ review.id }}">
+                            <a href="#comment">
+                            <li>
+                            <form method="POST" >
+                                {% csrf_token %}
+                                <input type="hidden" name="editPost" value="{{ review.id }}">
+                                <button type="submit" style='border:none; margin-left:8px; background-color:white;'>Edit</button>
+                    
+                            </form>
+                        </li>
+                    </a>
+                              <li>
+                                <form method="POST" onsubmit="return confirmDelete();">
+                                  {% csrf_token %}
+                                  <button class="dropdown-item" name="deleteReview" value="{{ review.id }}" type="submit">Delete</button>
+                              </form>
+                              
+                              <script>
+                                  function confirmDelete() {
+                                      return confirm("Are you sure you want to delete this review?");
+                                  }
+                              </script>
+                              
+                              </li>
+                          </ul>
+                          {%endif%}
+                      </div>
+                  </div>
+              </div>
+              {% endfor %}
+              {% endif %}
+          </div>
+  
+          <!-- Pagination Controls -->
+          <div class="pagination">
+              {% if reviews.has_previous %}
+                  <a href="?page=1">&laquo; First</a>
+                  <a href="?page={{ reviews.previous_page_number }}">Previous</a>
+              {% endif %}
+  
+              <span>Page {{ reviews.number }} of {{ reviews.paginator.num_pages }}</span>
+  
+              {% if reviews.has_next %}
+                  <a href="?page={{ reviews.next_page_number }}">Next</a>
+                  <a href="?page={{ reviews.paginator.num_pages }}">Last &raquo;</a>
+              {% endif %}
+          </div>
+      </div>
+  </div>
+  
+    <style>
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    
+    .pagination a {
+        padding: 10px 15px;
+        margin: 0 5px;
+        text-decoration: none;
+        background-color: #007bff;
+        color: white;
+        border-radius: 5px;
+    }
+    
+    .pagination a:hover {
+        background-color: #0056b3;
+    }
+    .dropdown-toggle::after {
+      display: none; /* Hides the default arrow */
+  }
+    .pagination span {
+        padding: 10px 15px;
+        margin: 0 5px;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+    }
+  </style>    
+    
+    <div>
+  {% if user.is_authenticated and reviewToEdit %}
+  <div class="container mt-4" id="comment">
+      <form method="POST" class="mb-3">
+          {% csrf_token %}
+          <input type="hidden" name="editPost" value="{{ reviewToEdit.id }}"> <!-- Pass review ID -->
+          <div class="input-group" id="comment">
+              <input 
+                  type="text" 
+                  name="content" 
+                  class="form-control" 
+                  placeholder="Add a review, and keep it respectful, else others might flag it" 
+                  value="{{ reviewToEdit.content }}"
+                  aria-label="Add a review" 
+                  required>
+              <button type="submit" name="action" value="edit" class="btn btn-primary">Edit</button>
+          </div>
+      </form>
+  </div>
+  {% else %}
+  <div class="container mt-4">
+      <form method="POST" class="mb-3">
+          {% csrf_token %}
+          <div class="input-group" id="comment">
+              <input 
+                  type="text" 
+                  name="content" 
+                  class="form-control" 
+                  placeholder="Add a review, and keep it respectful, else others might flag it" 
+                  aria-label="Add a review" 
+                  required>
+              <button type="submit" name="action" value="submit" class="btn btn-primary">Submit</button>
+          </div>
+      </form>
+  </div>
+  {% endif %}
+  
+      </div>
+
+
+      
+    </section><!-- /Testimonials Section -->
+{%endif%}
+    <!-- Call To Action Section -->
+
+
+  
+    {%endblock%}
+  </main>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'vendor/php-email-form/validate.js' %}"></script>
+<script src="{% static 'vendor/aos/aos.js' %}"></script>
+<script src="{% static 'vendor/swiper/swiper-bundle.min.js' %}"></script>
+<script src="{% static 'vendor/glightbox/js/glightbox.min.js' %}"></script>
+
+
+  <!-- Main JS File -->
+  <script src="{%static 'js/main.js'%}"></script>
+
+</body>
+
+</html>
